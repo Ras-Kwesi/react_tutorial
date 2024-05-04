@@ -19,19 +19,20 @@ class TicketControl extends React.Component {
 
     render() {
         let currentVisibleState= null;
-        let addTicketbutton = null;
+        let buttonText = null;
 
         if(this.state.formVisibleOnPage){
             currentVisibleState = <NewTicketForm/>
+            buttonText="Return to Ticket List"
         } else {
             currentVisibleState = <TicketList/>
-            addTicketbutton= <button onClick={this.handleClick}>Add Ticket</button>
+            buttonText="Add Ticket"
         }
 
         return (
             <React.Fragment>
                 {currentVisibleState}
-                {addTicketbutton}
+                <button onClick={this.handleClick}>{buttonText}</button>
             </React.Fragment>
         );
     }
