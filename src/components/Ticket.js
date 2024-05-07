@@ -24,3 +24,5 @@ Ticket.propTypes = {
     // exampleClassTypeProp: PropTypes.instanceOf(ExampleClassName), // We can also declare that a prop is an instance of a class:
     whenTicketClicked: PropTypes.func
 };
+
+export default Ticket;
