@@ -50,7 +50,9 @@ class TicketControl extends React.Component {
     }
 
     handleDeletingTicket = (id) => {
-        const newMainTicketList = this.state.mainTicketList.filter(ticket => ticket.id !== id); // Creates a new list by ommiting the ticket we closed
+        const newMainTicketList = this.state.mainTicketList.filter(ticket => ticket.id !== id); 
+        // Creates a new list by ommiting the ticket we closed
+        
         this.setState({
             mainTicketList: newMainTicketList,
             selectedTicket: null
