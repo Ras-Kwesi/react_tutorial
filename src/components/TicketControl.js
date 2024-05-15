@@ -10,8 +10,9 @@ class TicketControl extends React.Component {
 
     constructor(props) {
         super(props);
+        console.log("\nProps:\n", props)
         this.state = {
-            formVisibleOnPage: false,
+            // formVisibleOnPage: false,
             // mainTicketList: [], // We are letting ticketControl handle local state, Redux handles the shared state
             selectedTicket: null,
             editing: false,
@@ -27,14 +28,20 @@ class TicketControl extends React.Component {
     handleClick = () => {                               // This function uses parentheses () around the object returned by the arrow function. 
         if (this.state.selectedTicket != null) {        // This syntax indicates an implicit return, meaning that the object inside the parentheses is the return value of the arrow function.
             this.setState({
-                formVisibleOnPage: false,
+                // formVisibleOnPage: false,
                 selectedTicket: null,
                 editing: false
             });
         } else {
-            this.setState(prevState => ({
-                formVisibleOnPage: !prevState.formVisibleOnPage,
-            }));
+            // this.setState(prevState => ({
+            //     formVisibleOnPage: !prevState.formVisibleOnPage,
+            // }));
+
+            const { dispatch } = this.props;
+            const action = {
+                type: 'TOGGLE_FORM'
+            }
+            dispatch(action);
         }
     }
 
@@ -57,7 +64,13 @@ class TicketControl extends React.Component {
             issue: issue,
         }
         dispatch(action);
-        this.setState({ formVisibleOnPage: false });
+
+        // this.setState({ formVisibleOnPage: false });
+
+        const action2 = {
+            type: 'TOGGLE_FORM' // This sets toogle form to false as it was true when adding new ticket, it takes the opposite of prev state (true => false)
+        }
+        dispatch(action2);
     }
 
     handleChangingSelectedTicket = (id) => {
@@ -77,10 +90,10 @@ class TicketControl extends React.Component {
     // }
 
     handleDeletingTicket = (id) => {
-        const {dispatch} = this.props;
+        const { dispatch } = this.props;
         const action = {
             type: 'DELETE_TICKET',
-            id : id,
+            id: id,
         }
 
         dispatch(action)
@@ -116,7 +129,7 @@ class TicketControl extends React.Component {
             issue: issue,
         }
         dispatch(action);
-        this.setState({ 
+        this.setState({
             editing: false,
             selectedTicket: null,
         });
@@ -139,7 +152,7 @@ class TicketControl extends React.Component {
             />
             buttonText = "Return to Ticket List"
         }
-        else if (this.state.formVisibleOnPage) {
+        else if (this.props.formVisibleOnPage) {
             currentVisibleState = <NewTicketForm
                 onNewTicketCreation={this.handleAddingNewTicketToList}
             />
@@ -161,17 +174,25 @@ class TicketControl extends React.Component {
 }
 
 TicketControl.propTypes = {
-    mainTicketList: PropTypes.object
-};  
+    mainTicketList: PropTypes.object,
+    formVisibleOnPage: PropTypes.bool,
+};
+
+// const mapStateToProps = state => {
+//     return {
+//         mainTicketList: state
+//     }
+// };
 
 const mapStateToProps = state => {
     return {
-        mainTicketList: state
+        mainTicketList: state.mainTicketList, // state is now an object with two other objects. We call their keys (mainTicketList, formVisibleOnPage)
+        formVisibleOnPage: state.formVisibleOnPage
     }
-};
-  
+}
+
 // Note: we are now passing mapStateToProps into the connect() function.
-  
+
 TicketControl = connect(mapStateToProps)(TicketControl);
 
 export default TicketControl;
