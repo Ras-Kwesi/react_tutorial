@@ -5,6 +5,7 @@ import TicketList from './TicketList';
 import TicketDetail from './TicketDetail';
 import EditTicketForm from './EditTicketForm';
 import PropTypes from "prop-types";
+import * as a from './../actions';
 
 class TicketControl extends React.Component {
 
@@ -38,9 +39,7 @@ class TicketControl extends React.Component {
             // }));
 
             const { dispatch } = this.props;
-            const action = {
-                type: 'TOGGLE_FORM'
-            }
+            const action = a.toggleForm()
             dispatch(action);
         }
     }
@@ -56,20 +55,12 @@ class TicketControl extends React.Component {
     handleAddingNewTicketToList = (newTicket) => {
         const { dispatch } = this.props;
         const { id, names, location, issue } = newTicket;
-        const action = {
-            type: 'ADD_TICKET',
-            id: id,
-            names: names,
-            location: location,
-            issue: issue,
-        }
+        const action = a.addTicket(newTicket)
         dispatch(action);
 
         // this.setState({ formVisibleOnPage: false });
 
-        const action2 = {
-            type: 'TOGGLE_FORM' // This sets toogle form to false as it was true when adding new ticket, it takes the opposite of prev state (true => false)
-        }
+        const action2 = a.toggleForm()
         dispatch(action2);
     }
 
@@ -91,10 +82,7 @@ class TicketControl extends React.Component {
 
     handleDeletingTicket = (id) => {
         const { dispatch } = this.props;
-        const action = {
-            type: 'DELETE_TICKET',
-            id: id,
-        }
+        const action = a.deleteTicket(id)
 
         dispatch(action)
         this.setState({
@@ -121,13 +109,7 @@ class TicketControl extends React.Component {
     handleEditingTicketInList = (ticketToEdit) => {
         const { dispatch } = this.props;
         const { id, names, location, issue } = ticketToEdit;
-        const action = {
-            type: 'EDIT_TICKET',
-            id: id,
-            names: names,
-            location: location,
-            issue: issue,
-        }
+        const action = a.addTicket(ticketToEdit)
         dispatch(action);
         this.setState({
             editing: false,
