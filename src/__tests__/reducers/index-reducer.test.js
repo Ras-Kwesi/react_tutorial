@@ -2,7 +2,7 @@ import rootReducer from '../../reducers/index';
 import { createStore } from 'redux';
 import formVisibleReducer from '../../reducers/form-visible-reducer';
 import ticketListReducer from '../../reducers/ticket-list-reducer';
-import * as c from './../../actions/actionTypes';
+import * as c from '../../actions/ActionTypes';
 
 let store = createStore(rootReducer); // In effect, we are creating a little Redux application in our tests that is separate from our React application to perform a smoke test
 

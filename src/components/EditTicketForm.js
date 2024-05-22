@@ -1,6 +1,7 @@
 import React from "react";
 import ReusableForm from "./ReusableForm";
 import PropTypes from 'prop-types';
+import Ticket from "./Ticket";
 
 function EditTicketForm(props) {
     const {ticket} = props;
@@ -12,10 +13,10 @@ function EditTicketForm(props) {
             location: event.target.location.value, 
             issue: event.target.issue.value, 
             id: ticket.id,
+            timeOpen: ticket.timeOpen,
+            formattedWaiTime: ticket.formattedWaiTime
         })
     }
-
-
     return (
         <React.Fragment>
             <ReusableForm

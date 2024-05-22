@@ -6,6 +6,7 @@ import TicketDetail from './TicketDetail';
 import EditTicketForm from './EditTicketForm';
 import PropTypes from "prop-types";
 import * as a from './../actions';
+import { formatDistanceToNow } from 'date-fns';
 
 class TicketControl extends React.Component {
 
@@ -20,11 +21,34 @@ class TicketControl extends React.Component {
         };
     }
 
-    // handleClick = () => {
-    //     this.setState(prevState => ({  // This function uses parentheses () around the object returned by the arrow function. This syntax indicates an implicit return, meaning that the object inside the parentheses is the return value of the arrow function.
-    //         formVisibleOnPage: !prevState.formVisibleOnPage
-    //     }))
+    componentDidMount() {
+        this.waitTimeUpdateTimer = setInterval(() =>
+            this.updateTicketElapsedWaitTime(),
+            60000
+        );
+    } 
+    // Unlike handleEVents wich have an inner function (function luteral), component functions are ran immediately and are active in the dom
+    // This events are react owns functions
+
+    // componentDidUpdate() {
+    //     console.log("component updated!");
     // }
+
+    componentWillUnmount() {
+        console.log("component unmounted!");
+        clearInterval(this.waitTimeUpdateTimer);
+    }
+
+    updateTicketElapsedWaitTime = () => {
+        const {dispatch} = this.props;
+        Object.values(this.props.mainTicketList).forEach(ticket => {
+            const newFormattedTime = formatDistanceToNow(ticket.timeOpen, {
+                addSuffix: true
+            });
+            const action = a.updateTime(ticket.id, newFormattedTime)
+            dispatch(action);
+        });
+    }
 
     handleClick = () => {                               // This function uses parentheses () around the object returned by the arrow function. 
         if (this.state.selectedTicket != null) {        // This syntax indicates an implicit return, meaning that the object inside the parentheses is the return value of the arrow function.
