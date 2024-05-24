@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import NewTicketForm from './NewTicketForm';
 import TicketList from './TicketList';
 import EditTicketForm from './EditTicketForm';
 import TicketDetail from './TicketDetail';
 import db from './../firebase.js';
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, updateDoc, onSnapshot, deleteDoc, setDoc } from "firebase/firestore";
 
 
 function TicketControl() {
@@ -13,6 +13,34 @@ function TicketControl() {
     const [mainTicketList, setMainTicketList] = useState([]);
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [editing, setEditing] = useState(false);
+    const [error, setError] = useState(null)
+
+    useEffect(() => {
+        const unSubscribe = onSnapshot(
+            collection(db, "tickets"),
+            (collectionSnapshot) => {
+                const tickets = [];
+                // const tickets = collectionSnapshot.docs.map((doc) => {  Provides array to map through
+                // return {
+                collectionSnapshot.forEach((doc) => {  //Querysnapshot.forEach() [ object, not list ] - not array such as array.prototype.forEach
+                    tickets.push({
+                        // ... doc.data(), // Spread operator in use!
+                        // id: doc.id makes a copy of ticket list into mainticket without need to loop
+                        names: doc.data().names, // doc is a DocumentSnapshot object - firebase syntax
+                        location: doc.data().location,  // .data() is javascript object
+                        issue: doc.data().issue, // issue is a property
+                        id: doc.id
+                    });
+                });
+                setMainTicketList(tickets);
+            },
+            (error) => {
+                setError(error.message)
+            }
+        );
+
+        return () => unSubscribe(); // Cleanup function
+    }, []); // Ensures componentdidmount runs once, at the start, not on every re-render of a list like mainticketlist
 
     const handleClick = () => {
         if (selectedTicket != null) {
@@ -24,23 +52,30 @@ function TicketControl() {
         }
     }
 
-    const handleDeletingTicket = (id) => {
-        const newMainTicketList = mainTicketList.filter(ticket => ticket.id !== id);
-        setMainTicketList(newMainTicketList);
-        setSelectedTicket(null);
+    const handleDeletingTicket = async (id) => {
+        try {await deleteDoc(doc(db, 'tickets', id))}
+        catch(error){
+            console.log(error);
+            setError(error)
+        };
+        setSelectedTicket(null); 
     }
 
     const handleEditClick = () => {
         setEditing(true);
     }
 
-    const handleEditingTicketInList = (ticketToEdit) => {
-        const editedMainTicketList = mainTicketList
-            .filter(ticket => ticket.id !== selectedTicket.id)
-            .concat(ticketToEdit);
-        setMainTicketList(editedMainTicketList);
-        setEditing(false);
-        setSelectedTicket(null);
+    const handleEditingTicketInList = async (ticketToEdit) => {
+        try{
+            const ticket = await doc(db,'tickets',ticketToEdit.id);
+            updateDoc(ticket, ticketToEdit);
+            setEditing(false);
+            setSelectedTicket(false);
+        }
+        catch (err){
+            console.log(err)
+            setError(error.message)
+        };
     }
 
     // const handleAddingNewTicketToList = async (newTicketData) => {
@@ -49,7 +84,11 @@ function TicketControl() {
     //     setFormVisibleOnPage(false);
     // }
 
-    // const handleAddingNewTicketToList = () => console.log("Runs though")
+    // const handleAddingNewTicketToList = async (newTicketData) => {  // Uses uuid to create personal ids
+    //     await setDoc(doc(db, "tickets", v4()), newTicketData);
+    //     setFormVisibleOnPage(false);
+    // }
+
 
     const handleAddingNewTicketToList = async (newTicketData) => {
         console.log("Run 1")
@@ -58,11 +97,11 @@ function TicketControl() {
             await addDoc(collection(db, "tickets"), newTicketData);
             console.log("Try 2");
             setFormVisibleOnPage(false);
-        } catch(err) {
+        } catch (err) {
             console.error("Failed:", err)
         }
     }
-    
+
     const handleChangingSelectedTicket = (id) => {
         const selection = mainTicketList.filter(ticket => ticket.id === id)[0];
         setSelectedTicket(selection);
@@ -71,7 +110,9 @@ function TicketControl() {
     let currentlyVisibleState = null;
     let buttonText = null;
 
-    if (editing) {
+    if (error) {
+        currentlyVisibleState = <h1>There was an error: <span>{error}</span></h1>
+    } else if (editing) {
         currentlyVisibleState =
             <EditTicketForm
                 ticket={selectedTicket}
@@ -100,7 +141,7 @@ function TicketControl() {
     return (
         <React.Fragment>
             {currentlyVisibleState}
-            <button onClick={handleClick}>{buttonText}</button>
+            {error ? null : <button onClick={handleClick}>{buttonText}</button>}
         </React.Fragment>
     );
 }
