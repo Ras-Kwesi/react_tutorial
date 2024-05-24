@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from 'firebase/firestore';
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAqJErl5XEUNNHqQK15eJXzUOdUuTDEBNg",
@@ -13,6 +14,11 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
+const auth = getAuth(app)
 const db = getFirestore(app);
 
-export default db;
+
+// both db and auth are now called named exports. 
+// This means that when we import these variables in other files, 
+// the names of the imports need to exactly match the names of the exported variables
+export {db, auth};

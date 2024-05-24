@@ -3,12 +3,13 @@ import NewTicketForm from './NewTicketForm';
 import TicketList from './TicketList';
 import EditTicketForm from './EditTicketForm';
 import TicketDetail from './TicketDetail';
-import db from './../firebase.js';
+import { db, auth } from './../firebase.js';
 import { collection, addDoc, doc, updateDoc, onSnapshot, deleteDoc, setDoc } from "firebase/firestore";
 
 
 function TicketControl() {
-
+    
+    // Business Logic
     const [formVisibleOnPage, setFormVisibleOnPage] = useState(false);
     const [mainTicketList, setMainTicketList] = useState([]);
     const [selectedTicket, setSelectedTicket] = useState(null);
@@ -53,12 +54,12 @@ function TicketControl() {
     }
 
     const handleDeletingTicket = async (id) => {
-        try {await deleteDoc(doc(db, 'tickets', id))}
-        catch(error){
+        try { await deleteDoc(doc(db, 'tickets', id)) }
+        catch (error) {
             console.log(error);
             setError(error)
         };
-        setSelectedTicket(null); 
+        setSelectedTicket(null);
     }
 
     const handleEditClick = () => {
@@ -66,13 +67,13 @@ function TicketControl() {
     }
 
     const handleEditingTicketInList = async (ticketToEdit) => {
-        try{
-            const ticket = await doc(db,'tickets',ticketToEdit.id);
+        try {
+            const ticket = await doc(db, 'tickets', ticketToEdit.id);
             updateDoc(ticket, ticketToEdit);
             setEditing(false);
             setSelectedTicket(false);
         }
-        catch (err){
+        catch (err) {
             console.log(err)
             setError(error.message)
         };
@@ -107,35 +108,48 @@ function TicketControl() {
         setSelectedTicket(selection);
     }
 
+    // Interface Logic
     let currentlyVisibleState = null;
     let buttonText = null;
+    
+    if (auth.currentUser == null) {
+        return (
+            <React.Fragment>
+                <h1>You must be signed in to access the queue.</h1>
+            </React.Fragment>
+        )
+    } else if (auth.currentUser != null) {
 
-    if (error) {
-        currentlyVisibleState = <h1>There was an error: <span>{error}</span></h1>
-    } else if (editing) {
-        currentlyVisibleState =
-            <EditTicketForm
-                ticket={selectedTicket}
-                onEditTicket={handleEditingTicketInList} />;
-        buttonText = "Return to Ticket List";
-    } else if (selectedTicket != null) {
-        currentlyVisibleState =
-            <TicketDetail
-                ticket={selectedTicket}
-                onClickingDelete={handleDeletingTicket}
-                onClickingEdit={handleEditClick} />;
-        buttonText = "Return to Ticket List";
-    } else if (formVisibleOnPage) {
-        currentlyVisibleState =
-            <NewTicketForm
-                onNewTicketCreation={handleAddingNewTicketToList} />;
-        buttonText = "Return to Ticket List";
-    } else {
-        currentlyVisibleState =
-            <TicketList
-                onTicketSelection={handleChangingSelectedTicket}
-                ticketList={mainTicketList} />;
-        buttonText = "Add Ticket";
+        // let currentlyVisibleState = null;
+        // let buttonText = null;
+
+        if (error) {
+            currentlyVisibleState = <h1>There was an error: <span>{error}</span></h1>
+        } else if (editing) {
+            currentlyVisibleState =
+                <EditTicketForm
+                    ticket={selectedTicket}
+                    onEditTicket={handleEditingTicketInList} />;
+            buttonText = "Return to Ticket List";
+        } else if (selectedTicket != null) {
+            currentlyVisibleState =
+                <TicketDetail
+                    ticket={selectedTicket}
+                    onClickingDelete={handleDeletingTicket}
+                    onClickingEdit={handleEditClick} />;
+            buttonText = "Return to Ticket List";
+        } else if (formVisibleOnPage) {
+            currentlyVisibleState =
+                <NewTicketForm
+                    onNewTicketCreation={handleAddingNewTicketToList} />;
+            buttonText = "Return to Ticket List";
+        } else {
+            currentlyVisibleState =
+                <TicketList
+                    onTicketSelection={handleChangingSelectedTicket}
+                    ticketList={mainTicketList} />;
+            buttonText = "Add Ticket";
+        }
     }
 
     return (
