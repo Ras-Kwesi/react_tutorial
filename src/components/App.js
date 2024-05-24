@@ -5,9 +5,7 @@ import TicketControl from "./TicketControl";
 
 
 function App() {
-    const name = "Thato";
-    const name2 = "Haley";
-    return (
+       return (
         <React.Fragment>
             <Header/>
             <hr />
