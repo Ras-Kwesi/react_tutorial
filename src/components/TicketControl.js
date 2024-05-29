@@ -4,11 +4,11 @@ import TicketList from './TicketList';
 import EditTicketForm from './EditTicketForm';
 import TicketDetail from './TicketDetail';
 import { db, auth } from './../firebase.js';
-import { collection, addDoc, doc, updateDoc, onSnapshot, deleteDoc, setDoc } from "firebase/firestore";
-
+import { collection, addDoc, doc, updateDoc, onSnapshot, deleteDoc, query, orderBy } from "firebase/firestore";
+import { formatDistanceToNow } from 'date-fns';
 
 function TicketControl() {
-    
+
     // Business Logic
     const [formVisibleOnPage, setFormVisibleOnPage] = useState(false);
     const [mainTicketList, setMainTicketList] = useState([]);
@@ -17,31 +17,55 @@ function TicketControl() {
     const [error, setError] = useState(null)
 
     useEffect(() => {
-        const unSubscribe = onSnapshot(
+        const queryByTimestamp = query(
             collection(db, "tickets"),
-            (collectionSnapshot) => {
+            orderBy('timeOpen')
+        );
+        const unSubscribe = onSnapshot(
+            // new code below!
+            queryByTimestamp,
+            (querySnapshot) => {
                 const tickets = [];
-                // const tickets = collectionSnapshot.docs.map((doc) => {  Provides array to map through
-                // return {
-                collectionSnapshot.forEach((doc) => {  //Querysnapshot.forEach() [ object, not list ] - not array such as array.prototype.forEach
+                querySnapshot.forEach((doc) => {
+                    const timeOpen = doc.get('timeOpen', { serverTimestamps: "estimate" }).toDate();
+                    const jsDate = new Date(timeOpen);
                     tickets.push({
-                        // ... doc.data(), // Spread operator in use!
-                        // id: doc.id makes a copy of ticket list into mainticket without need to loop
-                        names: doc.data().names, // doc is a DocumentSnapshot object - firebase syntax
-                        location: doc.data().location,  // .data() is javascript object
-                        issue: doc.data().issue, // issue is a property
+                        names: doc.data().names,
+                        location: doc.data().location,
+                        issue: doc.data().issue,
+                        timeOpen: jsDate,
+                        formattedWaitTime: formatDistanceToNow(jsDate),
                         id: doc.id
                     });
                 });
                 setMainTicketList(tickets);
             },
             (error) => {
-                setError(error.message)
+                setError(error.message);
             }
         );
 
         return () => unSubscribe(); // Cleanup function
     }, []); // Ensures componentdidmount runs once, at the start, not on every re-render of a list like mainticketlist
+
+    useEffect(() => {
+        function updateTicketElapsedWaitTime() {
+            const newMainTicketList = mainTicketList.map(ticket => {
+                const newFormattedWaitTime = formatDistanceToNow(ticket.timeOpen);
+                return { ...ticket, formattedWaitTime: newFormattedWaitTime };
+            });
+            setMainTicketList(newMainTicketList);
+        }
+
+        const waitTimeUpdateTimer = setInterval(() =>
+            updateTicketElapsedWaitTime(), // Function calls itself after time is elapsed and time is updated
+            60000
+        );
+
+        return function cleanup() {
+            clearInterval(waitTimeUpdateTimer);
+        }
+    }, [mainTicketList]) // our effect will get called anytime the mainTicketList state variable updates also.
 
     const handleClick = () => {
         if (selectedTicket != null) {
@@ -111,7 +135,7 @@ function TicketControl() {
     // Interface Logic
     let currentlyVisibleState = null;
     let buttonText = null;
-    
+
     if (auth.currentUser == null) {
         return (
             <React.Fragment>
