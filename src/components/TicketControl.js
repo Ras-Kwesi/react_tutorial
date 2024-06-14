@@ -85,6 +85,10 @@ class TicketControl extends React.Component {
             color: theme.textColor, 
         }
 
+        if (!theme) {
+            throw new Error("ThemeContext must be used within a ThemeContext.Provider!");
+        }
+
         if (this.state.editing) {
             currentVisibleState = <EditTicketForm ticket={this.state.selectedTicket} onEditTicket = {this.handleEditingTicketInList} />
             buttonText = 'Return to Ticket List';

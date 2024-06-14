@@ -55,6 +55,18 @@ function App() {
             <TicketControl />
         </ThemeContext.Provider>
     );
+//     return ( // Testing using components outside context
+//         <React.Fragment>
+//             <ThemeContext.Provider value={theme}>
+//                 <Header />
+//                 <ThemeContext.Consumer>
+//                     {contextTheme => <ToggleTheme theme={contextTheme} toggleTheme={toggleTheme} />}
+//                 </ThemeContext.Consumer>
+//             </ThemeContext.Provider>
+//             {/* We've moved <TicketControl> outside of <ThemeContext.Provider> */}
+//             <TicketControl />
+//         </React.Fragment>
+//     );
 }
 
 export default App;

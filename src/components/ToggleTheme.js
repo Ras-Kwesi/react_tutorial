@@ -2,38 +2,42 @@ import React from "react";
 import PropTypes from "prop-types";
 
 function ToggleTheme(props) {
-  const {theme, toggleTheme} = props;
+    const { theme, toggleTheme } = props;
 
-  const styles = { 
-    backgroundColor: theme.buttonBackground, 
-    color: theme.textColor 
-  }
+    if (!theme) {
+        throw new Error("ThemeContext must be used within a ThemeContext.Provider!");
+    }
 
-  return (
-    <React.Fragment>
-      <button style={styles} onClick={toggleTheme}>
-        {ThemeCurrently => {  // It swithces since each case holds the other theme. So white holds grey, grey black and black white
-            switch (ThemeCurrently) {
-                case theme.light:
-                    return theme.grey;
-                case theme.grey:
-                    return theme.dark;
-                case theme.dark:
-                    return theme.light;
-                default:
-                    return theme.light;
-            }
-        }}
-        Toggle Theme
-      </button>
-      <hr/>
-    </React.Fragment>
-  );
+    const styles = {
+        backgroundColor: theme.buttonBackground,
+        color: theme.textColor
+    }
+
+    return (
+        <React.Fragment>
+            <button style={styles} onClick={toggleTheme}>
+                {ThemeCurrently => {  // It swithces since each case holds the other theme. So white holds grey, grey black and black white
+                    switch (ThemeCurrently) {
+                        case theme.light:
+                            return theme.grey;
+                        case theme.grey:
+                            return theme.dark;
+                        case theme.dark:
+                            return theme.light;
+                        default:
+                            return theme.light;
+                    }
+                }}
+                Toggle Theme
+            </button>
+            <hr />
+        </React.Fragment>
+    );
 }
 
 ToggleTheme.propTypes = {
-  toggleTheme: PropTypes.func,
-  theme: PropTypes.object
+    toggleTheme: PropTypes.func,
+    theme: PropTypes.object
 }
 
 export default ToggleTheme;
