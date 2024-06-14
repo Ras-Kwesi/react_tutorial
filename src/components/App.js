@@ -11,21 +11,21 @@ function App() {
     document.body.style.color = theme.textColor; // new code!
 
     // function toggleTheme() {
-        // setTheme(theme =>
-        //     theme.textColor === "AntiqueWhite" ? themes.light : themes.dark
-        // );
-        // setTheme(theme => {
-        //     if (theme.textColor === "Black") {
-        //         return themes.light
-        //     } else if (theme.textColor === "DarkSlateGrey") {
-        //         return themes.grey
-        //     } else if (theme.textColor === "AntiqueWhite") {
-        //         return themes.dark
-        //     }
-        //     // else {
-        //     //     return themes.dark
-        //     // }
-        // });
+    // setTheme(theme =>
+    //     theme.textColor === "AntiqueWhite" ? themes.light : themes.dark
+    // );
+    // setTheme(theme => {
+    //     if (theme.textColor === "Black") {
+    //         return themes.light
+    //     } else if (theme.textColor === "DarkSlateGrey") {
+    //         return themes.grey
+    //     } else if (theme.textColor === "AntiqueWhite") {
+    //         return themes.dark
+    //     }
+    //     // else {
+    //     //     return themes.dark
+    //     // }
+    // });
 
     // }
 
@@ -48,7 +48,10 @@ function App() {
         <ThemeContext.Provider value={theme}>
             <Header />
             <hr />
-            <ToggleTheme toggleTheme={toggleTheme}/>
+            {/* <ToggleTheme toggleTheme={toggleTheme}/> */}
+            <ThemeContext.Consumer>
+                {contextTheme => <ToggleTheme theme={contextTheme} toggleTheme={toggleTheme} />}
+            </ThemeContext.Consumer>
             <TicketControl />
         </ThemeContext.Provider>
     );
